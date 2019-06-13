@@ -38,7 +38,22 @@ class GuestController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            \DB::beginTransaction();
+            $guest = new Guest();
+            if ($guest->fillguest($request->all())) {
+                $guest->save();
+                \DB::commit();
+                return response()->json([
+                    'message' => "Guest is created successfully"
+                ], 200);
+            }
+            return response()->json([
+                'message' => "Internal server error"
+            ], 500);
+        } catch (QueryException $e) {
+            \DB::rollback();
+        }
     }
 
     /**
