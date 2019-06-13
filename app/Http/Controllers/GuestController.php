@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Guest;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class GuestController extends Controller
 {
@@ -110,8 +112,27 @@ class GuestController extends Controller
      * @param  \App\Guest  $guest
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Guest $guest)
+    public function destroy($guest)
     {
-        //
+        try {
+            \DB::beginTransaction();
+            $guestModel = new Guest();
+            $guestModel = $guestModel->findOrFail($guest);
+            if ($guestModel->delete()) {
+                \DB::commit();
+                return response()->json([
+                    'message' => "Guest deleted successfully"
+                ], 200);
+            }
+            return response()->json([
+                'message' => "Internal server error"
+            ], 500);
+        } catch (QueryException $e) {
+            \DB::rollback();
+        } catch (ModelNotFoundException $e){
+            return response()->json([
+                'message' => "The Guest that you are looking for can not be found"
+            ]);
+        }
     }
 }
