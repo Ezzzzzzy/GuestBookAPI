@@ -14,4 +14,12 @@ class Guest extends Model
         }
         return false;
     }
+
+    public function updateGuest(Guest $guest, $attributes = []){
+        if($guest->fill($attributes)){
+            return true;
+        }
+        return false;
+    }
+
 }

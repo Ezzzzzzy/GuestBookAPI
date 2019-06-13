@@ -87,7 +87,21 @@ class GuestController extends Controller
      */
     public function update(Request $request, Guest $guest)
     {
-        //
+        try {
+            \DB::beginTransaction();
+            if ($guest->updateGuest($guest, $request->all())) {
+                $guest->save();
+                \DB::commit();
+                return response()->json([
+                    'message' => "Guest is updated successfully"
+                ], 200);
+            }
+            return response()->json([
+                'message' => "Internal server error"
+            ], 500);
+        } catch (QueryException $e) {
+            \DB::rollback();
+        }
     }
 
     /**
