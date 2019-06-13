@@ -14,7 +14,10 @@ class GuestController extends Controller
      */
     public function index()
     {
-        
+        $guest = new Guest();
+        return response()->json([
+            "data" => $guest->all()
+        ]);
     }
 
     /**
